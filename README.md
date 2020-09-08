@@ -16,11 +16,11 @@ Compute 2D LV map using quasi-conformal flattening and 2 spatial constraints: th
 
 Launch GUI and ask the user to select 3 seeds (please, see Example image above):
 
-    1. LV apex
+1. LV apex
     
-    2. point in the MV contour (or close to) that should be placed in pi in the disk
+2. point in the MV contour (or close to) that should be placed in pi in the disk
     
-    3. point in the MV contour (or close to) next to seed 2 and in anticlockwise direction when the RV is located on the left side of the LV. This point is used to find the correct MV contour direction.
+3. point in the MV contour (or close to) next to seed 2 and in anticlockwise direction when the RV is located on the left side of the LV. This point is used to find the correct MV contour direction.
 
 After the quasi-conformal with constraints flattening, a more uniform mesh (spatial distribution of points) is obtained using the radial displacement presented in: "Patient independent representation of the detailed cardiac ventricular anatomy." Bruno Paun, et al. Medical image analysis (2017)
 
