@@ -12,15 +12,15 @@ Example:
 [Python](https://www.python.org/) scripts depending (basically) on [VTK](https://vtk.org/) and [VMTK](http://www.vmtk.org/). 
 
 ## Description
-Compute 2D LV map using quasi-conformal flattening and 2 spatial constraints: the LV apex is fixed in the center of the disk, and one selected point within the Mitral Valve (MV) contour is fixed in the external border of the disk where angle = pi.
+Compute 2D LV map using quasi-conformal flattening and 2 spatial constraints: the LV apex is fixed in the center of the disk, and one selected point within the LV base contour is fixed in the external border of the disk where angle = pi.
 
 Launch GUI and ask the user to select 3 seeds (please, see Example image above):
 
 1. LV apex
     
-2. point in the MV contour (or close to) that should be placed in pi in the disk
+2. point in the base contour (or close to) that should be placed in pi in the disk
     
-3. point in the MV contour (or close to) next to seed 2 and in anticlockwise direction when the RV is located on the left side of the LV. This point is used to find the correct MV contour direction.
+3. point in the base contour (or close to) next to seed 2 and in anticlockwise direction when the RV is located on the left side of the LV. This point is used to find the correct contour direction.
 
 After the quasi-conformal with constraints flattening, a more uniform mesh (spatial distribution of points) is obtained using the radial displacement presented in: "Patient independent representation of the detailed cardiac ventricular anatomy." Bruno Paun, et al. Medical image analysis (2017)
 
