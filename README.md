@@ -1,4 +1,4 @@
-# Left Ventricle flattening
+# Left Ventricle Flattening
 Author: Marta Nuñez-Garcia (marnugar@gmail.com)
 
 ## About
@@ -11,6 +11,15 @@ Example:
 ## Code
 [Python](https://www.python.org/) scripts depending (basically) on [VTK](https://vtk.org/) and [VMTK](http://www.vmtk.org/). 
 
+## Description
+Compute 2D LV map using conformal flattening and 2 spatial constraints: apex fixed in the center + aorta point in the border (angle=pi in the disk)
+
+Launch GUI and ask the user to select 3 seeds:
+    1. LV apex
+    2. point in the MV contour (or close to) that should be placed in pi in the disk
+    3. point in the MV contour (or close to) next to seed 2 and in anticlockwise when the RV is located on the left side of the LV. This point is used to find the correct MV contour direction.
+
+After the quasi-conformal with constraints flattening, get more uniform spatial distribution of points using the radial displacement presented in: "Patient independent representation of the detailed cardiac ventricular anatomy." Bruno Paun, et al. Medical image analysis (2017)
 
 ## Instructions
 Clone the repository:
