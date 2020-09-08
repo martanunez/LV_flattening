@@ -1,13 +1,19 @@
 """
     Compute 2D LV map using conformal flattening and 2 spatial constraints: apex fixed in the center + aorta point in 
     the border (angle=pi in the disk)
-    Get more uniform spatial distribution of points using Bruno's radial displacement. From: Paun, Bruno, et al. 
-    "Patient independent representation of the detailed cardiac ventricular anatomy." Medical image analysis (2017)
-    Launch GUI and ask the user to select 3 seeds: LV apex, point in the base close to the aorta (pi in 2D), and extra 
-    point to help finding MV contour direction. This point has to be also in the base (close), close to the 'aorta point'
-    and anticlockwise when the RV is located on the left side of the LV.
 
-    Input: LV and RV mesh
+    Launch GUI and ask the user to select 3 seeds:
+    1. LV apex
+    2. point in the base contour (or close to) that should be placed in pi in the disk
+    3. point in the base contour (or close to) next to seed 2 and in anticlockwise when the RV is
+    located on the left side of the LV. This point is used to find the correct contour direction.
+
+    After the quasi-conformal with constraints flattening, get more uniform spatial distribution of points using the
+    radial displacement presented in: "Patient independent representation of the detailed cardiac ventricular anatomy."
+    Bruno Paun, et al. Medical image analysis (2017)
+
+    Input: LV mesh
+    Optional: RV mesh and n for radial displacement
     Output: flat LV mesh
     Example usage: python flat_LV.py --lv_meshfile data/lv_mesh.vtk --rv_meshfile data/rv_mesh.vtk 
 """
@@ -20,7 +26,7 @@ import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--lv_meshfile', type=str, metavar='PATH', help='path to LV input mesh')
-parser.add_argument('--rv_meshfile', type=str, metavar='PATH', help='path to RV input mesh')
+parser.add_argument('--rv_meshfile', type=str, default='', metavar='PATH', help='path to RV input mesh')
 parser.add_argument('--n', type=float, default=1/3.0, help='n for radial displacement')
 args = parser.parse_args()
 
@@ -29,17 +35,16 @@ if os.path.isfile(args.lv_meshfile):
 else:
     sys.exit('ERROR: LV input file does not exist. Please, specify a valid path.')
 
-if os.path.isfile(args.rv_meshfile):
-    surface_rv = readvtk(args.rv_meshfile)
-else:
-    sys.exit('ERROR: RV input file does not exist. Please, specify a valid path.')
-
-
 fileroot = os.path.dirname(args.lv_meshfile)
 filename = os.path.basename(args.lv_meshfile)
 filenameroot = os.path.splitext(filename)[0]
 
-surface = append(surface_lv, surface_rv)
+# if RV mesh available, append polydatas
+if os.path.isfile(args.rv_meshfile):
+    surface_rv = readvtk(args.rv_meshfile)
+    surface = append(surface_lv, surface_rv)
+else:
+    surface = surface_lv
 
 # define disk parameters (external radio, apex and aorta point position)
 rdisk = 1.0
@@ -80,52 +85,52 @@ locator.SetDataSet(surface_lv)
 locator.BuildLocator()
 id_ap = int(locator.FindClosestPoint(seeds_poly.GetPoint(0)))
 
-# Detect edges -> MV contour
+# Detect edges -> base contour
 cont = extractboundaryedge(surface_lv)
 edge_cont_ids = get_ordered_cont_ids_based_on_distance(cont).astype(int)
 
 # find corresponding ordered points in the COMPLETE mesh. Use same locator as before
-cont_mv_ids = np.zeros(edge_cont_ids.shape[0]) - 1
-for i in range(cont_mv_ids.shape[0]):
+cont_base_ids = np.zeros(edge_cont_ids.shape[0]) - 1
+for i in range(cont_base_ids.shape[0]):
     p = cont.GetPoint(edge_cont_ids[i])
-    cont_mv_ids[i] = locator.FindClosestPoint(p)
+    cont_base_ids[i] = locator.FindClosestPoint(p)
 
-# find closest point in MV contour to 'Aorta' seed
-locator_mv = vtk.vtkPointLocator()
-locator_mv.SetDataSet(cont)
-locator_mv.BuildLocator()
-id_0 = locator_mv.FindClosestPoint(seeds_poly.GetPoint(1))
-id_aux = locator_mv.FindClosestPoint(seeds_poly.GetPoint(2))
+# find closest point in base contour to 'Aorta' seed
+locator_base = vtk.vtkPointLocator()
+locator_base.SetDataSet(cont)
+locator_base.BuildLocator()
+id_0 = locator_base.FindClosestPoint(seeds_poly.GetPoint(1))
+id_aux = locator_base.FindClosestPoint(seeds_poly.GetPoint(2))
 # in surface
-id_mv0 = locator.FindClosestPoint(cont.GetPoint(id_0))
-id_mv_aux = locator.FindClosestPoint(cont.GetPoint(id_aux))
+id_base0 = locator.FindClosestPoint(cont.GetPoint(id_0))
+id_base_aux = locator.FindClosestPoint(cont.GetPoint(id_aux))
 
-# MV -> external disk
-# order cont_mv_ids to start in 'aorta'
-ref_mv = int(locator.FindClosestPoint(surface_lv.GetPoint(id_mv0)))
-reordered_mv_cont = np.append(cont_mv_ids[int(np.where(cont_mv_ids == ref_mv)[0]): cont_mv_ids.shape[0]],
-                              cont_mv_ids[0: int(np.where(cont_mv_ids == ref_mv)[0])]).astype(int)
-# print('Reference point in MV is ', ref_mv)
+# base -> external disk
+# order cont_base_ids to start in 'aorta'
+ref_base = int(locator.FindClosestPoint(surface_lv.GetPoint(id_base0)))
+reordered_base_cont = np.append(cont_base_ids[int(np.where(cont_base_ids == ref_base)[0]): cont_base_ids.shape[0]],
+                              cont_base_ids[0: int(np.where(cont_base_ids == ref_base)[0])]).astype(int)
+# print('Reference point in base is ', ref_base)
 
-# check if the list of ordered points corresponding to the MV contours has to be flipped
-pos_auxpoint = int(np.where(reordered_mv_cont == id_mv_aux)[0])
+# check if the list of ordered points corresponding to the base contours has to be flipped
+pos_auxpoint = int(np.where(reordered_base_cont == id_base_aux)[0])
 if pos_auxpoint > 20:     # 20 points far... empirical, it will depend on the mesh elements :(
     # Flip
-    print('I ll flip the MV ids')
-    aux = np.zeros(reordered_mv_cont.size)
-    for i in range(reordered_mv_cont.size):
-        aux[reordered_mv_cont.size - 1 - i] = reordered_mv_cont[i]
-    reordered_mv_cont = np.append(aux[aux.size - 1], aux[0:aux.size - 1]).astype(int)
+    print('I ll flip the base ids')
+    aux = np.zeros(reordered_base_cont.size)
+    for i in range(reordered_base_cont.size):
+        aux[reordered_base_cont.size - 1 - i] = reordered_base_cont[i]
+    reordered_base_cont = np.append(aux[aux.size - 1], aux[0:aux.size - 1]).astype(int)
 
-complete_circumf_t = np.linspace(np.pi, np.pi + 2*np.pi, len(reordered_mv_cont), endpoint=False)  # starting in pi
+complete_circumf_t = np.linspace(np.pi, np.pi + 2*np.pi, len(reordered_base_cont), endpoint=False)  # starting in pi
 x0_ext = np.cos(complete_circumf_t) * rdisk
 y0_ext = np.sin(complete_circumf_t) * rdisk
 
-m_disk = flat_w_constraints(surface_lv, reordered_mv_cont, np.array([id_ap]), x0_ext, y0_ext, ap_x0.astype(float),
+m_disk = flat_w_constraints(surface_lv, reordered_base_cont, np.array([id_ap]), x0_ext, y0_ext, ap_x0.astype(float),
                             ap_y0.astype(float))
 
 transfer_all_scalar_arrays_by_point_id(surface_lv, m_disk)
-writevtk(m_disk, os.path.join(fileroot, filenameroot + '_flat.vtk'))
+# writevtk(m_disk, os.path.join(fileroot, filenameroot + '_flat.vtk'))
 
 # Apply Bruno's radial displacement to enlarge central part and get more uniform mesh
 # Paun, Bruno, et al. "Patient independent representation of the detailed cardiac ventricular anatomy."
