@@ -6,7 +6,7 @@ Quasi conformal flattening with regional constraints. This algorithm is an exten
 
 Example:
 
-![Example image](https://github.com/martanunez/LA_flattening/blob/master/example_im.png)
+![Example image](https://github.com/martanunez/LV_flattening/blob/master/example.png)
 
 ## Code
 [Python](https://www.python.org/) scripts depending (basically) on [VTK](https://vtk.org/) and [VMTK](http://www.vmtk.org/). 
