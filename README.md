@@ -2,7 +2,7 @@
 Author: Marta Nuñez-Garcia (marnugar@gmail.com)
 
 ## About
-Quasi conformal flattening with regional constraints. This algorithm is an extension (simplification) of the left atrial flattening method described in:[*Fast quasi-conformal regional flattening of the left atrium*. Marta Nuñez-Garcia, Gabriel Bernardino, Francisco Alarcón, Gala Caixal, Lluís Mont, Oscar Camara, and Constantine Butakoff.  IEEE Transactions on Visualization and Computer Graphics (2020)](https://ieeexplore.ieee.org/abstract/document/8959311). Please cite this reference when using this code. Preprint available at: [arXiv:1811.06896.](https://arxiv.org/pdf/1811.06896.pdf) The code runs in Linux and Windows. 
+Quasi conformal flattening with regional constraints. This algorithm is an extension (simplification) of the left atrial flattening method described in: [*Fast quasi-conformal regional flattening of the left atrium*. Marta Nuñez-Garcia, Gabriel Bernardino, Francisco Alarcón, Gala Caixal, Lluís Mont, Oscar Camara, and Constantine Butakoff.  IEEE Transactions on Visualization and Computer Graphics (2020)](https://ieeexplore.ieee.org/abstract/document/8959311). Please cite this reference when using this code. Preprint available at: [arXiv:1811.06896.](https://arxiv.org/pdf/1811.06896.pdf) The code runs in Linux and Windows. 
 
 Example:
 
@@ -15,11 +15,14 @@ Example:
 Compute 2D LV map using quasi-conformal flattening and 2 spatial constraints: the LV apex is fixed in the center of the disk, and one selected point within the Mitral Valve (MV) contour is fixed in the external border of the disk where angle = pi.
 
 Launch GUI and ask the user to select 3 seeds (please, see Example image above):
+
     1. LV apex
+    
     2. point in the MV contour (or close to) that should be placed in pi in the disk
+    
     3. point in the MV contour (or close to) next to seed 2 and in anticlockwise direction when the RV is located on the left side of the LV. This point is used to find the correct MV contour direction.
 
-After the quasi-conformal with constraints flattening, get more uniform spatial distribution of points using the radial displacement presented in: "Patient independent representation of the detailed cardiac ventricular anatomy." Bruno Paun, et al. Medical image analysis (2017)
+After the quasi-conformal with constraints flattening, a more uniform mesh (spatial distribution of points) is obtained using the radial displacement presented in: "Patient independent representation of the detailed cardiac ventricular anatomy." Bruno Paun, et al. Medical image analysis (2017)
 
 ## Instructions
 Clone the repository:
