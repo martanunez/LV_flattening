@@ -86,7 +86,8 @@ locator.BuildLocator()
 id_ap = int(locator.FindClosestPoint(seeds_poly.GetPoint(0)))
 
 # Detect edges -> base contour
-cont = extractboundaryedge(surface_lv)
+# cont = extractboundaryedge(surface_lv)
+cont = extractlargestregion(extractboundaryedge(m_no_base))   # Ensure it's only 1
 edge_cont_ids = get_ordered_cont_ids_based_on_distance(cont).astype(int)
 
 # find corresponding ordered points in the COMPLETE mesh. Use same locator as before

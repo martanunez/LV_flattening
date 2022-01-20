@@ -60,6 +60,26 @@ def extractboundaryedge(polydata):
     return edge.GetOutput()
 
 
+def extractlargestregion(polydata):
+    """Keep only biggest region"""
+    surfer = vtk.vtkDataSetSurfaceFilter()
+    surfer.SetInputData(polydata)
+    surfer.Update()
+
+    cleaner = vtk.vtkCleanPolyData()
+    cleaner.SetInputData(surfer.GetOutput())
+    cleaner.Update()
+
+    connect = vtk.vtkPolyDataConnectivityFilter()
+    connect.SetInputData(cleaner.GetOutput())
+    connect.SetExtractionModeToLargestRegion()
+    connect.Update()
+
+    cleaner = vtk.vtkCleanPolyData()
+    cleaner.SetInputData(connect.GetOutput())
+    cleaner.Update()
+    return cleaner.GetOutput()
+
 def find_create_path(mesh, p1, p2):
     """Get shortest path (using Dijkstra algorithm) between p1 and p2 on the mesh. Returns a polydata"""
     dijkstra = vtk.vtkDijkstraGraphGeodesicPath()
