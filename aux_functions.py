@@ -27,10 +27,7 @@ def readvtk(filename):
 def writevtk(surface, filename, type='ascii'):
     """Write binary or ascii VTK file"""
     writer = vtk.vtkPolyDataWriter()
-    if vtk.vtkVersion.GetVTKMajorVersion() > 5:
-        writer.SetInputData(surface)
-    else:
-        writer.SetInput(surface)
+    writer.SetInputData(surface)
     writer.SetFileName(filename)
     if type == 'ascii':
         writer.SetFileTypeToASCII()
@@ -50,10 +47,7 @@ def append(polydata1, polydata2):
 
 def extractboundaryedge(polydata):
     edge = vtk.vtkFeatureEdges()
-    if vtk.vtkVersion.GetVTKMajorVersion() > 5:
-        edge.SetInputData(polydata)
-    else:
-        edge.SetInput(polydata)
+    edge.SetInputData(polydata)
     edge.FeatureEdgesOff()
     edge.NonManifoldEdgesOff()
     edge.Update()
@@ -83,10 +77,16 @@ def extractlargestregion(polydata):
 def find_create_path(mesh, p1, p2):
     """Get shortest path (using Dijkstra algorithm) between p1 and p2 on the mesh. Returns a polydata"""
     dijkstra = vtk.vtkDijkstraGraphGeodesicPath()
-    if vtk.vtkVersion().GetVTKMajorVersion() > 5:
-        dijkstra.SetInputData(mesh)
+    # (VTK 9.1 and later...) The Dijkistra interpolator will not accept cells that aren't triangles
+    if (vtk.vtkVersion.GetVTKMajorVersion() >= 9):
+        triangleFilter = vtk.vtkTriangleFilter()
+        triangleFilter.SetInputData(mesh)
+        triangleFilter.Update()
+        pd = triangleFilter.GetOutput()
+        dijkstra.SetInputData(pd)
     else:
-        dijkstra.SetInput(mesh)
+        dijkstra.SetInputData(mesh)
+
     dijkstra.SetStartVertex(p1)
     dijkstra.SetEndVertex(p2)
     dijkstra.Update()
@@ -186,9 +186,13 @@ def get_ordered_cont_ids_based_on_distance(mesh):
     if added == False:
         print('Warning: I have not added any point, list of indexes may not be correct.')
     cover.SetPoints(points)
-    cover.SetPolys(polys)
-    if not vtk.vtkVersion.GetVTKMajorVersion() > 5:
+
+    if (vtk.vtkVersion.GetVTKMajorVersion() >= 9):
+        cover.SetLines(polys)
+    else:
+        cover.SetPolys(polys)
         cover.Update()
+
     # compute distance from point with id 0 to all the rest
     npoints = cover.GetNumberOfPoints()
     dists = np.zeros(npoints)

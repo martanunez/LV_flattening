@@ -87,7 +87,7 @@ id_ap = int(locator.FindClosestPoint(seeds_poly.GetPoint(0)))
 
 # Detect edges -> base contour
 # cont = extractboundaryedge(surface_lv)
-cont = extractlargestregion(extractboundaryedge(m_no_base))   # Ensure it's only 1
+cont = extractlargestregion(extractboundaryedge(surface_lv))   # Ensure it's only 1
 edge_cont_ids = get_ordered_cont_ids_based_on_distance(cont).astype(int)
 
 # find corresponding ordered points in the COMPLETE mesh. Use same locator as before
@@ -115,9 +115,10 @@ reordered_base_cont = np.append(cont_base_ids[int(np.where(cont_base_ids == ref_
 
 # check if the list of ordered points corresponding to the base contours has to be flipped
 pos_auxpoint = int(np.where(reordered_base_cont == id_base_aux)[0])
-if pos_auxpoint > 20:     # 20 points far... empirical, it will depend on the mesh elements :(
+# if pos_auxpoint > 20:     # 20 points far... empirical, it will depend on the mesh elements :(
+if pos_auxpoint < 20:     # 20 points far... empirical, it will depend on the mesh elements :(
     # Flip
-    print('I ll flip the base ids')
+    # print('I ll flip the base ids')
     aux = np.zeros(reordered_base_cont.size)
     for i in range(reordered_base_cont.size):
         aux[reordered_base_cont.size - 1 - i] = reordered_base_cont[i]
