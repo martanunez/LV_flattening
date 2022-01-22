@@ -55,10 +55,14 @@ python flat_LV.py --lv_meshfile data/lv_mesh.vtk --rv_meshfile data/rv_mesh.vtk
 ## Dependencies
 The scripts in this repository were successfully run with:
 1. Ubuntu 16.04
+    - [Python](https://www.python.org/) 3.5.2
+    - [VMTK](http://www.vmtk.org/) 1.4
+    - [VTK](https://vtk.org/) 9.1.0
+2. Ubuntu 16.04
     - [Python](https://www.python.org/) 2.7.12
     - [VMTK](http://www.vmtk.org/) 1.4
     - [VTK](https://vtk.org/) 8.1.0
-2. Windows 8.1
+3. Windows 8.1
     - [Python](https://www.python.org/) 3.6.4
     - [VMTK](http://www.vmtk.org/) 1.4
     - [VTK](https://vtk.org/) 8.1.0
@@ -79,7 +83,21 @@ conda install -c vmtk vtk itk vmtk
 ```
 source activate vmtk_env
 ```-->
-You can also build VMTK from source if you wish, for example, to use a specific VTK version. Instructions can be found [here.](http://www.vmtk.org/download/)
+
+**Nevertheless,** for Ubuntu, the easiest option for me was to build VMTK from source (slowly but surely). Instructions can be found [here.](http://www.vmtk.org/download/)
+In brief:
+```
+git clone https://github.com/vmtk/vmtk.git
+mkdir vmtk-build
+cd vmtk-build
+ccmake ../vmtk
+make 
+```
+And edit the ~/.bashrc file,
+```
+gedit ~/.bashrc
+```
+adding the following line:  source /home/{your_path_to_vmtk}/vmtk/vmtk-build/Install/vmtk_env.sh
 
 ## Important note
 You may need to slightly modify vmtkcenterlines.py from the VMTK package if you encounter the following error when running 1_mesh_standardisation.py:
